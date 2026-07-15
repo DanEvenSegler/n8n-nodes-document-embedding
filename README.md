@@ -42,24 +42,37 @@ The node exposes the following connection ports:
 
 ### 2. Properties & Parameters
 - **Data Mode**:
-  - `Specific Field` (Default): Embeds a specific field of the incoming JSON.
-  - `All Data`: Stringifies the entire incoming item's JSON and embeds it.
-- **Field Name**: The dot-notation path of the field to embed (e.g. `text` or `data.description`). Visible only in `Specific Field` mode.
+  - `Specific Field`: Embeds a single specific field (supports dot notation like `message.content`).
+  - `Multiple Fields`: Embeds multiple specified fields (comma-separated list) joined together.
+  - `All Data`: Stringifies the entire incoming item's JSON data.
+  - `Custom JSON`: Define a custom JSON object to embed using a code editor.
+  - `Custom String Template`: Define a custom text string with expressions (e.g. `Hello {{ $json.name }}, this is text.`).
+- **Fields List**: Comma-separated list of fields to include (visible in `Multiple Fields` mode).
+- **Custom JSON / Custom String**: The editor input fields (visible in their respective modes).
+- **JSON Formatting**:
+  - `Key-Value Pairs (Comma Separated)` (Default): Formats as `key1: value1, key2: value2`.
+  - `Key-Value Pairs (Newlines)`: Formats as `key1: value1\nkey2: value2`.
+  - `JSON String`: Formats as standard stringified JSON `{"key1":"value1","key2":"value2"}`.
 - **Split / Chunk Text**: Enable this to show the Text Splitter sub-node input and split the text into chunks before embedding.
+- **Preserve Original Fields**:
+  - `All Original Fields` (Default): Carries over all original properties of the input item into the output objects.
+  - `Specific Fields Only`: Preserves only a specified list of fields (comma-separated list).
+  - `None (Clean Output)`: Outputs only the embedded text and the embedding vector.
 - **Output Mode**:
   - `Append to Input Items`: Modifies the incoming items to add the embedding results under a custom property name.
-  - `Output New Items`: Generates clean, new JSON objects with only the text and embedding keys.
-- **Output Property Name**: The key under which the embedding results will be saved (visible in `Append` mode).
+  - `Output New Items`: Generates clean, new JSON objects (either one item per chunk, or one item per original document).
+- **Output Property Name**: The key under which the embedding vector array or chunks array will be saved.
 
 ---
 
 ## Output Examples
 
-### Mode: Non-Chunked (Append Mode)
+### Mode: Non-Chunked (Append Mode with All Original Fields)
 ```json
 {
   "id": 123,
   "text": "Hello world",
+  "category": "news",
   "embedding": [
     0.002394028,
     -0.012304918,
@@ -69,24 +82,23 @@ The node exposes the following connection ports:
 }
 ```
 
-### Mode: Chunked (Append Mode)
-When **Split / Chunk Text** is enabled, the output property contains an array of chunk objects:
+### Mode: Chunked (New Items Mode with Specific Fields Preserved: `id`)
+When **Split / Chunk Text** is enabled and **Preserve Original Fields** is set to `specific` with `id`, the output returns multiple clean items representing chunks:
 ```json
-{
-  "id": 123,
-  "text": "Long document text...",
-  "embedding": [
-    {
-      "text": "Long document",
-      "embedding": [0.012, -0.054, 0.089, ...]
-    },
-    {
-      "text": "text...",
-      "embedding": [0.003, 0.021, -0.041, ...]
-    }
-  ]
-}
+[
+  {
+    "id": 123,
+    "text": "First chunk text...",
+    "embedding": [0.012, -0.054, 0.089, ...]
+  },
+  {
+    "id": 123,
+    "text": "Second chunk text...",
+    "embedding": [0.003, 0.021, -0.041, ...]
+  }
+]
 ```
+
 
 ---
 
