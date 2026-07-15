@@ -62,6 +62,7 @@ The node exposes the following connection ports:
   - `Append to Input Items`: Modifies the incoming items to add the embedding results under a custom property name.
   - `Output New Items`: Generates clean, new JSON objects (either one item per chunk, or one item per original document).
 - **Output Property Name**: The key under which the embedding vector array or chunks array will be saved.
+- **Output Text Property Name**: The key under which the text content will be saved (defaults to `text`).
 
 ---
 

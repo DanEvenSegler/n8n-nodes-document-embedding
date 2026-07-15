@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-document-embedding",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"description": "n8n community node to vectorize (embed) documents and data fields with optional text splitting.",
 	"license": "MIT",
 	"homepage": "https://github.com/DanEvenSegler/n8n-nodes-document-embedding",

@@ -319,6 +319,13 @@ export class DocumentEmbedding implements INodeType {
 				default: 'embedding',
 				description: 'The property name to save the embedding or chunks list. Used as the key name for the vector array.',
 			},
+			{
+				displayName: 'Output Text Property Name',
+				name: 'outputTextPropertyName',
+				type: 'string',
+				default: 'text',
+				description: 'The property name to save the text content into. Used as the key name for the text field in the output.',
+			},
 		],
 	};
 
@@ -356,6 +363,7 @@ export class DocumentEmbedding implements INodeType {
 				const fieldsToPreserve = this.getNodeParameter('fieldsToPreserve', itemIndex, '') as string;
 				const outputMode = this.getNodeParameter('outputMode', itemIndex, 'append') as string;
 				const outputPropertyName = this.getNodeParameter('outputPropertyName', itemIndex, 'embedding') as string;
+				const outputTextPropertyName = this.getNodeParameter('outputTextPropertyName', itemIndex, 'text') as string;
 				
 				// Extract the text to embed
 				let textToEmbed = '';
@@ -419,7 +427,7 @@ export class DocumentEmbedding implements INodeType {
 
 					const chunkObjects = chunks.map((chunk, idx) => ({
 						...preserved,
-						text: chunk,
+						[outputTextPropertyName]: chunk,
 						[outputPropertyName]: embeddings[idx] || [],
 					} as IDataObject));
 
@@ -468,7 +476,7 @@ export class DocumentEmbedding implements INodeType {
 						returnData.push({
 							json: {
 								...preserved,
-								text: textToEmbed,
+								[outputTextPropertyName]: textToEmbed,
 								[outputPropertyName]: embedding,
 							} as IDataObject,
 							pairedItem: itemIndex,
