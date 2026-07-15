@@ -1,0 +1,16 @@
+{
+	"node": "n8n-nodes-document-embedding.documentEmbedding",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": [
+		"AI",
+		"Developer Tools"
+	],
+	"resources": {
+		"primaryDocumentation": [
+			{
+				"url": "https://github.com/DanEvenSegler/n8n-nodes-document-embedding#readme"
+			}
+		]
+	}
+}

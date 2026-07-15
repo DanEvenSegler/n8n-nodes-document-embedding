@@ -1,19 +1,19 @@
 {
-	"name": "n8n-nodes-<...>",
+	"name": "n8n-nodes-document-embedding",
 	"version": "0.1.0",
-	"description": "",
+	"description": "n8n community node to vectorize (embed) documents and data fields with optional text splitting.",
 	"license": "MIT",
-	"homepage": "",
+	"homepage": "https://github.com/DanEvenSegler/n8n-nodes-document-embedding",
 	"keywords": [
 		"n8n-community-node-package"
 	],
 	"author": {
-		"name": "",
-		"email": ""
+		"name": "Dan Even Segler",
+		"email": "danevensegler08@gmail.com"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/<...>/n8n-nodes-<...>.git"
+		"url": "git+https://github.com/DanEvenSegler/n8n-nodes-document-embedding.git"
 	},
 	"scripts": {
 		"build": "n8n-node build",
@@ -30,18 +30,16 @@
 	"n8n": {
 		"n8nNodesApiVersion": 1,
 		"strict": true,
-		"credentials": [
-			"dist/credentials/GithubIssuesApi.credentials.js",
-			"dist/credentials/GithubIssuesOAuth2Api.credentials.js"
-		],
+		"credentials": [],
 		"nodes": [
-			"dist/nodes/GithubIssues/GithubIssues.node.js",
-			"dist/nodes/Example/Example.node.js"
+			"dist/nodes/DocumentEmbedding/DocumentEmbedding.node.js"
 		]
 	},
 	"devDependencies": {
+		"@eslint/js": "^10.0.1",
 		"@n8n/node-cli": "*",
 		"eslint": "9.39.4",
+		"n8n-workflow": "^2.16.0",
 		"prettier": "3.8.3",
 		"release-it": "20.2.0",
 		"typescript": "5.9.3"
