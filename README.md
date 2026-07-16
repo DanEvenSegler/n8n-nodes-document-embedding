@@ -106,9 +106,3 @@ When **Split / Chunk Text** is enabled and **Preserve Original Fields** is set t
 ## License
 
 [MIT](LICENSE.md)
-
-## Author
-
-- **Author**: Dan Even Segler
-- **Email**: [danevensegler08@gmail.com](mailto:danevensegler08@gmail.com)
-- **Repository**: [https://github.com/DanEvenSegler/n8n-nodes-document-embedding](https://github.com/DanEvenSegler/n8n-nodes-document-embedding)
