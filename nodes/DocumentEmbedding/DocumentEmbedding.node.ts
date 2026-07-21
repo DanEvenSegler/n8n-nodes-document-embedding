@@ -192,6 +192,11 @@ export class DocumentEmbedding implements INodeType {
 						description: 'Embed a custom string template containing expressions',
 					},
 					{
+						name: 'Exclude Specific Fields (Embed All Except...)',
+						value: 'excludeFields',
+						description: 'Embed all fields of the input item except the ones specified',
+					},
+					{
 						name: 'Multiple Fields',
 						value: 'multipleFields',
 						description: 'Embed multiple specified fields joined together',
@@ -228,6 +233,18 @@ export class DocumentEmbedding implements INodeType {
 					},
 				},
 				description: 'Comma-separated list of fields to include (e.g. title, description)',
+			},
+			{
+				displayName: 'Fields to Exclude',
+				name: 'excludeFieldsList',
+				type: 'string',
+				default: 'embedding',
+				displayOptions: {
+					show: {
+						mode: ['excludeFields'],
+					},
+				},
+				description: 'Comma-separated list of fields to exclude from embedding (e.g. embedding, ID)',
 			},
 			{
 				displayName: 'Custom JSON',
@@ -283,7 +300,7 @@ export class DocumentEmbedding implements INodeType {
 				default: 'keyValuePairs',
 				displayOptions: {
 					show: {
-						mode: ['allData', 'specificField', 'multipleFields', 'customJson'],
+						mode: ['allData', 'specificField', 'multipleFields', 'customJson', 'excludeFields'],
 					},
 				},
 				description: 'How the object data should be stringified before embedding',
@@ -417,6 +434,7 @@ export class DocumentEmbedding implements INodeType {
 				const keepFields = this.getNodeParameter('keepFields', itemIndex, 'all') as string;
 				const fieldsToPreserve = this.getNodeParameter('fieldsToPreserve', itemIndex, '') as string;
 				const fieldsToExclude = this.getNodeParameter('fieldsToExclude', itemIndex, '') as string;
+				const excludeFieldsList = this.getNodeParameter('excludeFieldsList', itemIndex, '') as string;
 				const outputMode = this.getNodeParameter('outputMode', itemIndex, 'append') as string;
 				const outputPropertyName = this.getNodeParameter('outputPropertyName', itemIndex, 'embedding') as string;
 				const outputTextPropertyName = this.getNodeParameter('outputTextPropertyName', itemIndex, 'text') as string;
@@ -438,6 +456,13 @@ export class DocumentEmbedding implements INodeType {
 					textToEmbed = formatObject(jsonObject, jsonFormatting);
 				} else if (mode === 'customString') {
 					textToEmbed = customStringInput;
+				} else if (mode === 'excludeFields') {
+					const excludeList = excludeFieldsList.split(',').map(f => f.trim()).filter(Boolean);
+					const clonedJson = JSON.parse(JSON.stringify(item.json)) as Record<string, unknown>;
+					for (const field of excludeList) {
+						deleteNestedValue(clonedJson, field);
+					}
+					textToEmbed = formatObject(clonedJson, jsonFormatting);
 				} else {
 					// specificField
 					const rawValue = getNestedValue(item.json, fieldName);
