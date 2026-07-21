@@ -43,6 +43,23 @@ function setNestedValue(obj: Record<string, unknown>, path: string, value: unkno
 	current[parts[parts.length - 1]] = value;
 }
 
+function deleteNestedValue(obj: Record<string, unknown>, path: string): void {
+	if (!path) return;
+	const parts = path.split('.');
+	let current = obj;
+	for (let i = 0; i < parts.length - 1; i++) {
+		const part = parts[i];
+		if (current && typeof current === 'object' && part in current && current[part] !== null) {
+			current = current[part] as Record<string, unknown>;
+		} else {
+			return;
+		}
+	}
+	if (current && typeof current === 'object' && parts[parts.length - 1] in current) {
+		delete current[parts[parts.length - 1]];
+	}
+}
+
 function formatObject(obj: unknown, format: string, keysToInclude?: string[]): string {
 	if (!obj || typeof obj !== 'object') {
 		return String(obj);
@@ -78,21 +95,39 @@ function formatObject(obj: unknown, format: string, keysToInclude?: string[]): s
 	return entries.join(', ');
 }
 
-function getPreservedFields(originalJson: Record<string, unknown>, keepMode: string, specificFieldsStr: string): Record<string, unknown> {
+function getPreservedFields(
+	originalJson: Record<string, unknown>,
+	keepMode: string,
+	specificFieldsStr: string,
+	excludeFieldsStr: string,
+): Record<string, unknown> {
 	if (keepMode === 'none') {
 		return {};
 	}
 	if (keepMode === 'all') {
 		return { ...originalJson };
 	}
+	if (keepMode === 'allExcept') {
+		const result = JSON.parse(JSON.stringify(originalJson)) as Record<string, unknown>;
+		const fields = excludeFieldsStr.split(',');
+		for (const field of fields) {
+			const trimmedField = field.trim();
+			if (trimmedField) {
+				deleteNestedValue(result, trimmedField);
+			}
+		}
+		return result;
+	}
 
 	const result: Record<string, unknown> = {};
 	const fields = specificFieldsStr.split(',');
 	for (const field of fields) {
 		const trimmedField = field.trim();
-		const val = getNestedValue(originalJson, trimmedField);
-		if (val !== undefined) {
-			setNestedValue(result, trimmedField, val);
+		if (trimmedField) {
+			const val = getNestedValue(originalJson, trimmedField);
+			if (val !== undefined) {
+				setNestedValue(result, trimmedField, val);
+			}
 		}
 	}
 	return result;
@@ -266,6 +301,10 @@ export class DocumentEmbedding implements INodeType {
 				type: 'options',
 				options: [
 					{
+						name: 'All Except Specific Fields',
+						value: 'allExcept',
+					},
+					{
 						name: 'All Original Fields',
 						value: 'all',
 					},
@@ -288,10 +327,26 @@ export class DocumentEmbedding implements INodeType {
 				default: 'id',
 				displayOptions: {
 					show: {
-						keepFields: ['specific'],
+						keepFields: [
+							'specific',
+						],
 					},
 				},
 				description: 'Comma-separated list of fields to preserve (e.g. ID, metadata.source)',
+			},
+			{
+				displayName: 'Fields to Exclude',
+				name: 'fieldsToExclude',
+				type: 'string',
+				default: '',
+				displayOptions: {
+					show: {
+						keepFields: [
+							'allExcept',
+						],
+					},
+				},
+				description: 'Comma-separated list of fields to exclude (e.g. ID, metadata.source)',
 			},
 			{
 				displayName: 'Output Mode',
@@ -361,6 +416,7 @@ export class DocumentEmbedding implements INodeType {
 				const chunking = this.getNodeParameter('chunking', itemIndex, false) as boolean;
 				const keepFields = this.getNodeParameter('keepFields', itemIndex, 'all') as string;
 				const fieldsToPreserve = this.getNodeParameter('fieldsToPreserve', itemIndex, '') as string;
+				const fieldsToExclude = this.getNodeParameter('fieldsToExclude', itemIndex, '') as string;
 				const outputMode = this.getNodeParameter('outputMode', itemIndex, 'append') as string;
 				const outputPropertyName = this.getNodeParameter('outputPropertyName', itemIndex, 'embedding') as string;
 				const outputTextPropertyName = this.getNodeParameter('outputTextPropertyName', itemIndex, 'text') as string;
@@ -395,7 +451,7 @@ export class DocumentEmbedding implements INodeType {
 				}
 
 				// Resolve fields we wish to preserve in output
-				const preserved = getPreservedFields(item.json as Record<string, unknown>, keepFields, fieldsToPreserve);
+				const preserved = getPreservedFields(item.json as Record<string, unknown>, keepFields, fieldsToPreserve, fieldsToExclude);
 
 				if (chunking) {
 					if (!textSplitter) {
