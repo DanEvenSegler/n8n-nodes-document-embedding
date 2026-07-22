@@ -215,6 +215,7 @@ export class DocumentEmbedding implements INodeType {
 				name: 'fieldName',
 				type: 'string',
 				default: 'text',
+				requiresDataPath: 'single',
 				displayOptions: {
 					show: {
 						mode: ['specificField'],
@@ -227,6 +228,7 @@ export class DocumentEmbedding implements INodeType {
 				name: 'fieldsList',
 				type: 'string',
 				default: 'title, description',
+				requiresDataPath: 'multiple',
 				displayOptions: {
 					show: {
 						mode: ['multipleFields'],
@@ -239,6 +241,7 @@ export class DocumentEmbedding implements INodeType {
 				name: 'excludeFieldsList',
 				type: 'string',
 				default: 'embedding',
+				requiresDataPath: 'multiple',
 				displayOptions: {
 					show: {
 						mode: ['excludeFields'],
@@ -342,6 +345,7 @@ export class DocumentEmbedding implements INodeType {
 				name: 'fieldsToPreserve',
 				type: 'string',
 				default: 'id',
+				requiresDataPath: 'multiple',
 				displayOptions: {
 					show: {
 						keepFields: [
@@ -356,6 +360,7 @@ export class DocumentEmbedding implements INodeType {
 				name: 'fieldsToExclude',
 				type: 'string',
 				default: '',
+				requiresDataPath: 'multiple',
 				displayOptions: {
 					show: {
 						keepFields: [
